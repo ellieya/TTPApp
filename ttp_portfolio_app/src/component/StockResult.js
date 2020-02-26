@@ -1,5 +1,6 @@
 import React from 'react';
 import Info from './../info/info';
+import cookie from 'react-cookies';
 
 /**
  * Expected props:
@@ -17,7 +18,9 @@ class StockResult extends React.Component {
             buttonValue: "Buy",
             price: "Loading...",
             loading: true,
-            stock: this.props.ticker //Placed in state in order to easily supply information to backend
+            stock: this.props.ticker, //Placed in state in order to easily supply information to backend
+            user: cookie.load('userEmail') //Placed in state in order to easily supply information to backend
+            //TODO: better to get information from app-level state, revise if we have time
             /*
             Other currently undefined attributes:
             qty
@@ -37,24 +40,26 @@ class StockResult extends React.Component {
             })
     }
 
-    // async buyStock() {
-    //     await fetch(Info.backEndUrl + "/buy",
-    //         {
-    //             method: "POST",
-    //             body: JSON.stringify(this.state),
-    //             headers: {
-    //                 'Content-Type': 'application/json'
-    //             }
-    //         })
-    //         .then((res) => {
-    //             if (res.sucess) {
-    //                 alert("Transaction success!");
-    //                 //Raise state up
-    //             } else {
-    //                 alert("ERROR:\n" + res.status);
-    //             }
-    //         })
-    // }
+    async buyStock() {
+        await fetch(Info.backEndUrl + "/buy",
+            {
+                method: "POST",
+                body: JSON.stringify(this.state),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(async (res) => {
+                let json = await res.json();
+                console.log(json.success);
+                if (json.success) {
+                    alert("Transaction success!");
+                    //Raise state up
+                } else {
+                    alert("ERROR:\n" + json.status);
+                }
+            })
+    }
 
     /**
      * Determines what to print on the left of the inputs
@@ -73,7 +78,7 @@ class StockResult extends React.Component {
                             if (this.state.qty > 0)
                                 this.setState({
                                     buttonValue: "Confirm",
-                                    cost: this.state.price * this.state.qty
+                                    cost: Number.parseFloat(this.state.price * this.state.qty).toFixed(2)
                                 })
                             else
                                 alert("Please enter a positive integer value!")
@@ -92,9 +97,7 @@ class StockResult extends React.Component {
                             () => {
 
                                 //CALL BACKEND FUNCTION TO PURCHASE
-                                console.log(this.state);
-
-                                alert("Transaction successful!");
+                                this.buyStock();
                                 //TODO: Lift state up with this line
                             }
                         }

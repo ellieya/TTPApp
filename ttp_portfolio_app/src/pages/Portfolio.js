@@ -15,8 +15,35 @@ class Portfolio extends Page {
         };
     }
 
-    componentDidMount() {
+    async componentDidMount() {
+        this.stockList = [];
 
+        //Get all stocks owned from backend
+        console.log(this.props.appState.userEmail);
+        await fetch(Info.backEndUrl + "/getAllStock", {
+            method: "POST",
+            body: {
+                "user" : this.props.appState.userEmail
+            },
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then( async (res) => {
+            let json = await res.json();
+            console.log(json);
+            json.forEach( (element) => {
+                this.stockList.push(
+                    <tbody>
+                    <tr>
+                        <td>{element.stock}</td>
+                        <td>{element.qty}</td>
+                        <td>X * {element.qty}</td>
+                    </tr>
+                </tbody>
+                )
+            })
+        })
     }
 
     submitAction = async (info) => {
@@ -65,13 +92,7 @@ class Portfolio extends Page {
                                     <th>Total Value</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Example</td>
-                                    <td>5</td>
-                                    <td>Example value * 5</td>
-                                </tr>
-                            </tbody>
+                            {this.stockList}
                         </table>
                     </div>
                     <div className="transaction-side">
