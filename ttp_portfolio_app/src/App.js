@@ -15,7 +15,8 @@ class App extends React.Component {
     super(props);
     this.state = {
       "loggedIn": cookie.load('username') ? true : false,  // User logged in status should be determined by cookie
-      "username": cookie.load('username')
+      "username": cookie.load('username'),
+      "userFunds" : cookie.load('userFunds') ? cookie.load('userFunds') : 50000
     }
   }
 
@@ -41,7 +42,7 @@ class App extends React.Component {
               <div className="home">
                 <img src={Logo} alt="NYC Tech Talent Pipeline Logo" />
                 <span>
-                  <br />Asessment Part 2<br />
+                  <br />Asessment Stage 2<br />
                   By Ellie Chen
                 </span>
               </div>

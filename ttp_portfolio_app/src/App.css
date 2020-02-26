@@ -118,13 +118,13 @@ body, .body {
 }
 
 .portfolio .portfolio-side {
-  width: 70%;
+  width: 60%;
 }
 
 .portfolio .transaction-side {
   padding: 15px 20px;
   border-radius: 10px;
-  width: 27%;
+  width: 37%;
   margin-right: 3%;
   position: fixed;
   right: 0;
@@ -147,4 +147,41 @@ body, .body {
   position: relative;
   left: 50%;
   transform: translateX(-50%);
+}
+
+.stock-result {
+  position:relative;
+  margin: 10px 0;
+}
+
+.stock-result .ticker {
+  font-size: 17px;
+}
+
+.stock-result .supplemental-text {
+  font-size: 12px;
+}
+
+.stock-result .action-inputs {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+}
+
+.action-inputs input {
+  width: 35px;
+}
+
+.action-inputs .dynamic {
+  display: inline-block;
+}
+
+.action-inputs .inputs {
+  float: right;
+}
+
+.action-inputs button {
+  margin: 3px;
+  display: inline-block;
 }

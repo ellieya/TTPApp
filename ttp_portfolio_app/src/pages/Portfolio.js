@@ -3,6 +3,7 @@ import Page from './Page';
 import SignIn from './SignIn';
 import Form from './../component/Form';
 import Info from './../info/info';
+import StockResult from './../component/StockResult';
 
 class Portfolio extends Page {
 
@@ -25,7 +26,7 @@ class Portfolio extends Page {
             await fetch(Info.AVAPIUrl + "/query?function=SYMBOL_SEARCH&keywords=" + info.Ticker + Info.AVAPIKeyUrlParam)
                 .then(async (res) => {
                     let searchResults = await res.json();
-                    this.setState ({
+                    this.setState({
                         "searchResults": searchResults.bestMatches
                     })
                 })
@@ -35,14 +36,22 @@ class Portfolio extends Page {
 
     createSearchResultsList = () => {
         let results = [];
-        this.state.searchResults.forEach((element) => {
-            results.push(<span>{element["2. name"]}</span>)
-        })
+        try {
+            this.state.searchResults.forEach((element) => {
+                //For maximum compatability between two used APIs, only push results for US market
+                if (element["4. region"] === "United States") {
+                    results.push(
+                        <StockResult ticker={element["1. symbol"]} name={element["2. name"]} key={element["1. symbol"]} />
+                    )
+                }
+            })
+        } catch (err) {
+            alert("If you are getting this message, the API key has either expired or reached its limit. Please wait ~60 seconds, or wait until tomorrow. Thank you!")
+        }
         return results;
     }
 
     render() {
-        console.log("Am I being called?");
         if (this.props.appState.loggedIn) {
             return (
                 <div className="portfolio">
@@ -76,8 +85,11 @@ class Portfolio extends Page {
                             class="transaction"
                             action={this.submitAction}
                             submitText="Search"
-                            changeType={true}
                         />
+                        <h3>Cash value: ${this.props.appState.userFunds}</h3>
+                        <div className="list">
+                            {this.createSearchResultsList()}
+                        </div>
                     </div>
                 </div>
             )

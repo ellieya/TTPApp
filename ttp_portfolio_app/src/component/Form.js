@@ -64,10 +64,12 @@ class Form extends React.Component {
     }
 
     render() {
-        if (this.props.changeType && this.valueReceived) {
-            this.valueReceived = false;
+        if (this.props.changeType) {
             try {
-                this.props.action(this.state);
+                if (this.valueReceived) {
+                    this.valueReceived = false;
+                    this.props.action(this.state);
+                }
             } catch (err) {
                 console.log(err);
                 console.log("Did you check that an action function for Form was specified?")

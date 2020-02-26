@@ -66,5 +66,8 @@ app.post('/register', async (req, res) => {
     }
 })
 
+app.post('/buy', async (req, res) => {
+    //expect ticker
+})
 
 app.listen(port, () => console.log(`Listening, PORT: ${port}`))
