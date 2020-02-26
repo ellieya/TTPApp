@@ -1,0 +1,11 @@
+{
+  "name": "ttp_portfolio_app_backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "bootstrap": "^4.4.1",
+    "react-bootstrap": "^1.0.0-beta.16",
+    "sha.js": "^2.4.11"
+  }
+}

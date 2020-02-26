@@ -1,0 +1,83 @@
+import React from 'react';
+import './App.css';
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import SignIn from "./pages/SignIn.js";
+import Register from "./pages/Register.js";
+import Page from './pages/Page'; //Consider renaming
+
+class App extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      "loggedIn": false,  // User logged in status should be determined by cookie
+      "username": ""
+    }
+  }
+
+  componentDidMount() {
+    //Check cookies for user logged in
+  }
+
+  /**
+   * adjustState
+   * A function called by components in order to lift state back up to application level. Any attribute and value can be supplied.
+   */
+  adjustState = (state) => {
+    this.setState(state)
+  }
+
+  render() {
+    return (
+      <Router>
+        <div className="body">
+          <Navigation loggedIn={this.state.loggedIn} action={this.adjustState} appState={this.state} />
+          <Switch>
+            <Route exact path="/">
+            </Route>
+            <Route path="/sign-in">
+              <SignIn action={this.adjustState} appState={this.state} />
+            </Route>
+            <Route path="/register">
+              <Register action={this.adjustState} appState={this.state} />
+            </Route>
+            <Route path="/portfolio"></Route>
+            <Route path="/transactions"></Route>
+          </Switch>
+        </div>
+      </Router>
+    )
+  }
+}
+
+class Navigation extends Page {
+  render() {
+    if (this.props.loggedIn) {
+      return (<div className="nav">
+        <ul>
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/portfolio">Portfolio</Link></li>
+          <li><Link to="/transactions">Transactions</Link></li>
+        </ul>
+        <div className="user-logged-in">
+          <span>Welcome, {this.props.appState.username}!</span>
+          <button onClick={() => {
+            this.adjustAppState({
+              loggedIn: false
+            });
+          }}>Log out</button>
+        </div>
+      </div>)
+    } else {
+      return (<div className="nav">
+        <ul>
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/sign-in">Sign In</Link></li>
+          <li><Link to="/register">Register</Link></li>
+        </ul>
+      </div>)
+    }
+  }
+}
+
+export default App;

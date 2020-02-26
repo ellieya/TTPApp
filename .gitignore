@@ -1,0 +1,27 @@
+# dependencies
+node_modules
+ttp_portfolio_app/node_modules
+ttp_portfolio_app_backend/node_modules
+ttp_portfolio_app/.pnp
+ttp_portfolio_app/.pnp.js
+
+# testing
+ttp_portfolio_app/coverage
+
+# production
+ttp_portfolio_app/build
+
+# misc
+ttp_portfolio_app/.DS_Store
+ttp_portfolio_app/.env.local
+ttp_portfolio_app/.env.development.local
+ttp_portfolio_app/.env.test.local
+ttp_portfolio_app/.env.production.local
+
+ttp_portfolio_app/npm-debug.log*
+ttp_portfolio_app/yarn-debug.log*
+ttp_portfolio_app/yarn-error.log*
+
+# credentials
+ttp_portfolio_app/src/info
+ttp_portfolio_app_backend/info.js
