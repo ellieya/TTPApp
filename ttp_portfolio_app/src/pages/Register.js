@@ -36,6 +36,8 @@ class Register extends Page {
                     loggedIn: true
                 })
                 cookie.save("username", json.username);
+            } else {
+                alert("E-mail address already in use. Try again!");
             }
         }).catch((err) => {
             console.log(err);
@@ -58,6 +60,7 @@ class Register extends Page {
                         title="Sign Up"
                         fields={fields}
                         action={this.submitAction}
+                        class="login"
                     />
                 </div>
             )

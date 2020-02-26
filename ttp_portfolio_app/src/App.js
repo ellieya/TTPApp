@@ -1,10 +1,13 @@
 import React from 'react';
 import './App.css';
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
-import SignIn from "./pages/SignIn.js";
-import Register from "./pages/Register.js";
+import SignIn from "./pages/SignIn";
+import Register from "./pages/Register";
+import Portfolio from "./pages/Portfolio";
+import Transactions from "./pages/Transactions";
 import Page from './pages/Page'; //Consider renaming
 import cookie from 'react-cookies';
+import Logo from './img/ttplogo.png';
 
 class App extends React.Component {
 
@@ -31,10 +34,17 @@ class App extends React.Component {
   render() {
     return (
       <Router>
+        <Navigation loggedIn={this.state.loggedIn} action={this.adjustState} appState={this.state} />
         <div className="body">
-          <Navigation loggedIn={this.state.loggedIn} action={this.adjustState} appState={this.state} />
           <Switch>
             <Route exact path="/">
+              <div className="home">
+                <img src={Logo} alt="NYC Tech Talent Pipeline Logo" />
+                <span>
+                  <br />Asessment Part 2<br />
+                  By Ellie Chen
+                </span>
+              </div>
             </Route>
             <Route path="/sign-in">
               <SignIn action={this.adjustState} appState={this.state} />
@@ -42,8 +52,12 @@ class App extends React.Component {
             <Route path="/register">
               <Register action={this.adjustState} appState={this.state} />
             </Route>
-            <Route path="/portfolio"></Route>
-            <Route path="/transactions"></Route>
+            <Route path="/portfolio">
+              <Portfolio action={this.adjustState} appState={this.state} />
+            </Route>
+            <Route path="/transactions">
+              <Transactions action={this.adjustState} appState={this.state} />
+            </Route>
           </Switch>
         </div>
       </Router>

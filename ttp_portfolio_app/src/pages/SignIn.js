@@ -5,6 +5,11 @@ import Page from './Page';
 import {Redirect} from "react-router-dom";
 import cookie from 'react-cookies'
 
+/**
+ * Expected props:
+ * redirect (optional) - Default redirect is to "/" but if a redirect is specified, will redirect to specified link instead.
+ */
+
 class SignIn extends Page {
 
     constructor(props) {
@@ -34,6 +39,8 @@ class SignIn extends Page {
                     loggedIn: true
                 })
                 cookie.save("username", json.username);
+            } else {
+                alert("Login failed. Try again!");
             }
         }).catch((err) => {
             console.log(err);
@@ -42,7 +49,7 @@ class SignIn extends Page {
 
     render() {
         if (this.state.loggedIn) {
-            return <Redirect to="/" />
+            return <Redirect to={this.props.redirect ? this.props.redirect : "/"} />
         } else {
             //Explicitly set fields for this page
             let fields = [];
@@ -55,6 +62,7 @@ class SignIn extends Page {
                         title="Sign In"
                         fields={fields}
                         action={this.submitAction}
+                        class="login"
                     />
                 </div>
             )
