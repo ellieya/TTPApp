@@ -16,7 +16,13 @@ class StockResult extends React.Component {
         this.state = {
             buttonValue: "Buy",
             price: "Loading...",
-            loading: true
+            loading: true,
+            stock: this.props.ticker //Placed in state in order to easily supply information to backend
+            /*
+            Other currently undefined attributes:
+            qty
+            cost
+            */
         }
     }
 
@@ -31,14 +37,22 @@ class StockResult extends React.Component {
             })
     }
 
-    // getPrice = async () => {
-    //     await fetch(Info.AVAPIUrl + "/query?function=GLOBAL_QUOTE&symbol=" + this.props.ticker + Info.AVAPIUrl)
-    //         .then(async (res) => {
-    //             let json = await res.json();
-    //             this.setState({
-    //                 "price": json["Global Quote"]["05. price"],
-    //                 "buttonValue": "Buy"
-    //             })
+    // async buyStock() {
+    //     await fetch(Info.backEndUrl + "/buy",
+    //         {
+    //             method: "POST",
+    //             body: JSON.stringify(this.state),
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             }
+    //         })
+    //         .then((res) => {
+    //             if (res.sucess) {
+    //                 alert("Transaction success!");
+    //                 //Raise state up
+    //             } else {
+    //                 alert("ERROR:\n" + res.status);
+    //             }
     //         })
     // }
 
@@ -78,6 +92,7 @@ class StockResult extends React.Component {
                             () => {
 
                                 //CALL BACKEND FUNCTION TO PURCHASE
+                                console.log(this.state);
 
                                 alert("Transaction successful!");
                                 //TODO: Lift state up with this line

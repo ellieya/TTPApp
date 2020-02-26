@@ -16,7 +16,8 @@ class App extends React.Component {
     this.state = {
       "loggedIn": cookie.load('username') ? true : false,  // User logged in status should be determined by cookie
       "username": cookie.load('username'),
-      "userFunds" : cookie.load('userFunds') ? cookie.load('userFunds') : 50000
+      "userFunds" : cookie.load('userFunds') ? cookie.load('userFunds') : 50000,
+      "userEmail": cookie.load('userEmail')
     }
   }
 
@@ -33,6 +34,7 @@ class App extends React.Component {
   }
 
   render() {
+    console.log(this.state);
     return (
       <Router>
         <Navigation loggedIn={this.state.loggedIn} action={this.adjustState} appState={this.state} />

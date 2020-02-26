@@ -29,13 +29,13 @@ app.get('/', (req, res) => {
 app.post('/login', async (req, res) => {
     try {
         let [rows, fields] = await pool.execute(
-            'SELECT `name` FROM users WHERE email = ? AND password = ?;',
+            'SELECT `name`, email FROM users WHERE email = ? AND password = ?;',
             [req.body["E-mail"], req.body["Password"]]);
         
         if (rows.length == 0) {
             res.json(info.err("Incorrect credentials."));
         } else {
-            res.json(info.okAppend({"username": rows[0].name}));
+            res.json(info.okAppend({"username": rows[0].name, "email": rows[0].email})); //E-mail is used as "id"
         }
     } catch (err) {
         res.json(info.err("An exception was caught."));
@@ -55,7 +55,8 @@ app.post('/register', async (req, res) => {
                 'VALUE (?, ?, ?)',
                 [req.body["Name"], req.body["E-mail"], req.body["Password"]]
             ))
-            res.json(info.okAppend({"username": req.body["Name"]}));
+
+            res.json(info.okAppend({"username": req.body["Name"], "email": req.body["E-mail"]})); //E-mail is used as "id"
             console.log("Add successful.");
         } else {
             console.log("E-mail already in system!");
@@ -67,7 +68,25 @@ app.post('/register', async (req, res) => {
 })
 
 app.post('/buy', async (req, res) => {
-    //expect ticker
+    /**
+     * Expectations from object being sent:
+     * price: "293.44"
+     * stock: "AAPL"
+     * qty: "9"
+     * cost: 2640.96
+     */
+
+     //Get the user's current balance
+     let currentBalance = rows[0];
+     let newBalance = currentBalance - req.body.cost;
+     //If user's current balance - cost < 0, return error
+     if (newBalance < 0) {
+         res.json(info.err("Funds are insufficient. Require $" + Math.abs(newBalance) + " more to complete transaction."))
+     } else {
+        //Update user's balance in database
+        //
+     }
+     
 })
 
 app.listen(port, () => console.log(`Listening, PORT: ${port}`))

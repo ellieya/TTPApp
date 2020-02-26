@@ -30,12 +30,14 @@ class Register extends Page {
             if (json.success) {
                 this.adjustAppState({
                     loggedIn: true,
-                    username: json.username
+                    username: json.username,
+                    email: json.email
                 });
                 this.setState({
                     loggedIn: true
                 })
                 cookie.save("username", json.username);
+                cookie.save("userEmail", json.email);
             } else {
                 alert("E-mail address already in use. Try again!");
             }

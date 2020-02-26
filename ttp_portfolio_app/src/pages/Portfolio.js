@@ -86,7 +86,7 @@ class Portfolio extends Page {
                             action={this.submitAction}
                             submitText="Search"
                         />
-                        <h3>Cash value: ${this.props.appState.userFunds}</h3>
+                        <h3>Cash value: ${this.props.appState.userFunds.toLocaleString('en-US')}</h3>
                         <div className="list">
                             {this.createSearchResultsList()}
                         </div>

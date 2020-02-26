@@ -33,12 +33,14 @@ class SignIn extends Page {
                 //Update current state, then update application state
                 this.adjustAppState({
                     loggedIn: true,
-                    username: json.username
+                    username: json.username,
+                    userEmail: json.email
                 });
                 this.setState({
                     loggedIn: true
                 })
                 cookie.save("username", json.username);
+                cookie.save("userEmail", json.email);
             } else {
                 alert("Login failed. Try again!");
             }
