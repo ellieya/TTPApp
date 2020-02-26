@@ -3,6 +3,7 @@ import Form from './../component/Form';
 import Info from './../info/info';
 import Page from './Page';
 import {Redirect} from "react-router-dom";
+import cookie from 'react-cookies'
 
 
 //Given allotted time, we should merge Register & Sign-in to a parent class, function is almost identical
@@ -11,8 +12,8 @@ class Register extends Page {
     constructor(props) {
         super(props);
         this.state = {
-            loggedIn: false,
-            username: ""
+            loggedIn: cookie.load('username') ? true : false,
+            username: cookie.load('username')
         }
     }
 
@@ -24,7 +25,7 @@ class Register extends Page {
             headers: {
                 'Content-Type': 'application/json'
             }
-        }).then(async (res) => {
+        }).then(async (res) => { //On success, adjust this state and application state so that we refresh and display new information.
             let json = await res.json();
             if (json.success) {
                 this.adjustAppState({
@@ -34,6 +35,7 @@ class Register extends Page {
                 this.setState({
                     loggedIn: true
                 })
+                cookie.save("username", json.username);
             }
         }).catch((err) => {
             console.log(err);

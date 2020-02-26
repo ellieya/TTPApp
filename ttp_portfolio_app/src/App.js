@@ -4,14 +4,15 @@ import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import SignIn from "./pages/SignIn.js";
 import Register from "./pages/Register.js";
 import Page from './pages/Page'; //Consider renaming
+import cookie from 'react-cookies';
 
 class App extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      "loggedIn": false,  // User logged in status should be determined by cookie
-      "username": ""
+      "loggedIn": cookie.load('username') ? true : false,  // User logged in status should be determined by cookie
+      "username": cookie.load('username')
     }
   }
 
@@ -65,6 +66,7 @@ class Navigation extends Page {
             this.adjustAppState({
               loggedIn: false
             });
+            cookie.remove('username');
           }}>Log out</button>
         </div>
       </div>)

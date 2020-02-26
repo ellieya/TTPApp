@@ -3,13 +3,14 @@ import Form from './../component/Form';
 import Info from './../info/info';
 import Page from './Page';
 import {Redirect} from "react-router-dom";
+import cookie from 'react-cookies'
 
 class SignIn extends Page {
 
     constructor(props) {
         super(props);
         this.state = {
-            loggedIn: false
+            loggedIn: cookie.load('username') ? true : false
         }
     }
 
@@ -32,6 +33,7 @@ class SignIn extends Page {
                 this.setState({
                     loggedIn: true
                 })
+                cookie.save("username", json.username);
             }
         }).catch((err) => {
             console.log(err);
