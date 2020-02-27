@@ -11,8 +11,7 @@ import Logo from './img/ttplogo.png';
 
 /**
  * Hi TTP!
- * Some of the code is a bit sloppy and unsecure since I ran out of time, but all 6 user cases have been fulfilled.
- * I apologize in advance.
+ * Some of the code is a bit sloppy and unsecure since I ran out of time. I apologize in advance.
  * -Ellie
  */
 
