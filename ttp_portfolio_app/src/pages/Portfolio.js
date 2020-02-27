@@ -16,34 +16,98 @@ class Portfolio extends Page {
     }
 
     async componentDidMount() {
-        this.stockList = [];
-
         //Get all stocks owned from backend
+        let flags = []; //Makeshift method of checking since we're running out of time
+        this.totalPortfolioValue = 0;
+
         console.log(this.props.appState.userEmail);
         await fetch(Info.backEndUrl + "/getAllStock", {
             method: "POST",
-            body: {
-                "user" : this.props.appState.userEmail
-            },
+            body: JSON.stringify({
+                user: this.props.appState.userEmail
+            }),
             headers: {
                 'Content-Type': 'application/json'
             }
         })
-        .then( async (res) => {
-            let json = await res.json();
-            console.log(json);
-            json.forEach( (element) => {
-                this.stockList.push(
-                    <tbody>
-                    <tr>
-                        <td>{element.stock}</td>
-                        <td>{element.qty}</td>
-                        <td>X * {element.qty}</td>
-                    </tr>
-                </tbody>
-                )
+            .then(async (res) => {
+                let json = await res.json();
+                console.log(json);
+                this.ownedStockList = json;
+                flags.push(true);
             })
+
+        //For each ownedStockList, we now want to get the price.
+        this.ownedStockListPrices = [];
+        this.ownedStockList.forEach( async (element) => {
+            await fetch(Info.IEXUrl + "/stock/" + element.stock + "/quote?" + Info.IEXAPIKeyUrlParam)
+                .then(async (res) => {
+                    let json = await res.json();
+                    let stockPrice = Number.parseFloat(json.latestPrice).toFixed(2);
+                    this.totalPortfolioValue += stockPrice;
+                    this.ownedStockListPrices.push(stockPrice);
+                    flags.push(true);
+                })
         })
+        console.log("Owned stock prices");
+        console.log(this.ownedStockListPrices);
+
+
+        //Get cash balance from backend
+        await fetch(Info.backEndUrl + "/getCash", {
+            method: "POST",
+            body: JSON.stringify({
+                user: this.props.appState.userEmail
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(async (res) => {
+                let json = await res.json();
+                console.log("User funds:" + json)
+                this.props.action({
+                    userFunds: json
+                })
+                flags.push(true);
+            })
+
+        if (flags.length == 3) {
+            this.setState({
+                loading: false
+            })
+        }
+    }
+
+    async componentDidUpdate() {
+        if (this.state.loading) {
+            this.componentDidMount();
+        }
+    }
+
+    getOwnedStocks = () => {
+
+        let stockList = [];
+
+        //Run only when load is finished
+        if (!this.state.loading) {
+            let i = 0; //I'm so sorry I know this is terrible practice
+            this.ownedStockList.forEach((element) => {
+                stockList.push(
+                    <tbody>
+                        <tr>
+                            <td>{element.stock}</td>
+                            <td>{element.qty}</td>
+                            <td>{this.ownedStockListPrices[i]}</td>
+                            <td>{ Number.parseFloat(this.ownedStockListPrices[i]) * Number.parseInt(element.qty)}</td>
+                        </tr>
+                    </tbody>
+                )
+                i++;
+            })
+        }
+
+        return stockList;
     }
 
     submitAction = async (info) => {
@@ -61,6 +125,12 @@ class Portfolio extends Page {
         console.log(info);
     }
 
+    adjustPortfolioState = (state) => {
+        this.setState(
+            state
+        )
+    }
+
     createSearchResultsList = () => {
         let results = [];
         try {
@@ -68,7 +138,7 @@ class Portfolio extends Page {
                 //For maximum compatability between two used APIs, only push results for US market
                 if (element["4. region"] === "United States") {
                     results.push(
-                        <StockResult ticker={element["1. symbol"]} name={element["2. name"]} key={element["1. symbol"]} />
+                        <StockResult ticker={element["1. symbol"]} name={element["2. name"]} action={this.adjustPortfolioState} key={element["1. symbol"]} />
                     )
                 }
             })
@@ -79,6 +149,7 @@ class Portfolio extends Page {
     }
 
     render() {
+        console.log(this.state);
         if (this.props.appState.loggedIn) {
             return (
                 <div className="portfolio">
@@ -92,7 +163,7 @@ class Portfolio extends Page {
                                     <th>Total Value</th>
                                 </tr>
                             </thead>
-                            {this.stockList}
+                            {this.getOwnedStocks()}
                         </table>
                     </div>
                     <div className="transaction-side">

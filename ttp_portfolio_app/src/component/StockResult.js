@@ -94,11 +94,14 @@ class StockResult extends React.Component {
                     <br />
                     <div className="inputs">
                         <button onClick={
-                            () => {
+                            async () => {
 
                                 //CALL BACKEND FUNCTION TO PURCHASE
-                                this.buyStock();
+                                await this.buyStock();
                                 //TODO: Lift state up with this line
+                                this.props.action({
+                                    loading: true
+                                })
                             }
                         }
                         >{this.state.buttonValue}</button>
