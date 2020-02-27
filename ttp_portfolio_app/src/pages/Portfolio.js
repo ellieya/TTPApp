@@ -37,20 +37,20 @@ class Portfolio extends Page {
                 flags.push(true);
             })
 
-        //For each ownedStockList, we now want to get the price.
-        this.ownedStockListPrices = [];
-        this.ownedStockList.forEach( async (element) => {
-            await fetch(Info.IEXUrl + "/stock/" + element.stock + "/quote?" + Info.IEXAPIKeyUrlParam)
-                .then(async (res) => {
-                    let json = await res.json();
-                    let stockPrice = Number.parseFloat(json.latestPrice).toFixed(2);
-                    this.totalPortfolioValue += stockPrice;
-                    this.ownedStockListPrices.push(stockPrice);
-                    flags.push(true);
-                })
-        })
-        console.log("Owned stock prices");
-        console.log(this.ownedStockListPrices);
+        // //For each ownedStockList, we now want to get the price.
+        // this.ownedStockListPrices = [];
+        // this.ownedStockList.forEach( async (element) => {
+        //     await fetch(Info.IEXUrl + "/stock/" + element.stock + "/quote?" + Info.IEXAPIKeyUrlParam)
+        //         .then(async (res) => {
+        //             let json = await res.json();
+        //             let stockPrice = Number.parseFloat(json.latestPrice).toFixed(2);
+        //             this.totalPortfolioValue += stockPrice;
+        //             this.ownedStockListPrices.push(stockPrice);
+        //             flags.push(true);
+        //         })
+        // })
+        // console.log("Owned stock prices");
+        // console.log(this.ownedStockListPrices);
 
 
         //Get cash balance from backend
@@ -72,7 +72,7 @@ class Portfolio extends Page {
                 flags.push(true);
             })
 
-        if (flags.length == 3) {
+        if (flags.length == 2) {
             this.setState({
                 loading: false
             })
@@ -81,7 +81,7 @@ class Portfolio extends Page {
 
     async componentDidUpdate() {
         if (this.state.loading) {
-            this.componentDidMount();
+            // this.componentDidMount();
         }
     }
 
@@ -98,8 +98,8 @@ class Portfolio extends Page {
                         <tr>
                             <td>{element.stock}</td>
                             <td>{element.qty}</td>
-                            <td>{this.ownedStockListPrices[i]}</td>
-                            <td>{ Number.parseFloat(this.ownedStockListPrices[i]) * Number.parseInt(element.qty)}</td>
+                            {/* <td>{this.ownedStockListPrices[i]}</td> */}
+                            {/* <td>{ Number.parseFloat(this.ownedStockListPrices[i]) * Number.parseInt(element.qty)}</td> */}
                         </tr>
                     </tbody>
                 )
