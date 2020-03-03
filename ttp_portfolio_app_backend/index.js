@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
 app.post('/login', async (req, res) => {
     try {
         let [rows, fields] = await pool.execute(
-            'SELECT `name`, email FROM users WHERE email = ? AND password = ?;',
+            'SELECT `name`, email, cash FROM users WHERE email = ? AND password = ?;',
             [req.body["E-mail"], req.body["Password"]]);
 
         if (rows.length == 0) {
@@ -64,6 +64,7 @@ app.post('/register', async (req, res) => {
         }
     } catch (err) {
         res.json(info.err("An exception was caught."));
+        console.log(err);
     }
 })
 
@@ -94,30 +95,30 @@ app.post('/buy', async (req, res) => {
         );
 
         //Update ownership
-            //Do they already have it?
+        //Do they already have it?
+        [rows, fields] = await pool.execute(
+            'SELECT qty FROM ownership ' +
+            'WHERE userID = ? AND stock = ?;',
+            [req.body["user"], req.body["stock"]]
+        )
+
+
+        //Update value
+        if (rows.length > 0) {
+            let currentQty = rows[0].qty;
             [rows, fields] = await pool.execute(
-                'SELECT qty FROM ownership '+
-                'WHERE userID = ? AND stock = ?;',
-                [req.body["user"], req.body["stock"]]
+                'UPDATE ownership SET qty = ? WHERE userID = ? AND stock = ?;',
+                [Number.parseInt(req.body["qty"]) + Number.parseInt(currentQty), req.body["user"], req.body["stock"]]
             )
-
-
-            //Update value
-            if (rows.length > 0) {
-                let currentQty = rows[0].qty;
-                [rows, fields] = await pool.execute(
-                    'UPDATE ownership SET qty = ? WHERE userID = ? AND stock = ?;',
-                    [Number.parseInt(req.body["qty"]) + Number.parseInt(currentQty), req.body["user"], req.body["stock"]]
-                )
-            }
-            //Otherwise, create new entry
-            else {
-                [rows, fields] = await pool.execute(
-                    'INSERT INTO ownership ' +
-                    'VALUE (?, ?, ?)', //userID, stock, qty
-                    [req.body["user"], req.body["stock"], req.body["qty"]]
-                )
-            }
+        }
+        //Otherwise, create new entry
+        else {
+            [rows, fields] = await pool.execute(
+                'INSERT INTO ownership ' +
+                'VALUE (?, ?, ?)', //userID, stock, qty
+                [req.body["user"], req.body["stock"], req.body["qty"]]
+            )
+        }
 
         //Update user's balance in database
         [rows, fields] = await pool.execute(
@@ -147,6 +148,15 @@ app.post('/getAllTransaction', async (req, res) => {
     )
 
     res.json(rows);
+})
+
+app.post('/getCash', async (req, res) => {
+    let [rows, fields] = await pool.execute(
+        "SELECT * FROM users WHERE email = ?",
+        [req.body["user"]]
+    )
+
+    res.json(rows[0].cash);
 })
 
 app.listen(port, () => console.log(`Listening, PORT: ${port}`))
