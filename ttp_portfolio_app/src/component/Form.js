@@ -85,6 +85,9 @@ class Form extends React.Component {
                     {this.fields}
                     <button type="submit" onClick={() => {
                         try {
+                            console.log("Form is returning state");
+                            console.log(this.state);
+                            console.log(Object.keys(this.state).length);
                             this.props.action(this.state);
                         } catch (err) {
                             console.log(err);

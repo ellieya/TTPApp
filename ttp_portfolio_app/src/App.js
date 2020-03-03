@@ -8,6 +8,9 @@ import Transactions from "./pages/Transactions";
 import Page from './pages/Page'; //Consider renaming
 import cookie from 'react-cookies';
 import Logo from './img/ttplogo.png';
+import NavigationLogin from './component/NavigationLogin';
+import { connect } from "react-redux";
+import { userUpdateBasicInformation, userUpdateLoginStatus } from './redux/actions';
 
 /**
  * Hi TTP!
@@ -17,33 +20,42 @@ import Logo from './img/ttplogo.png';
 
 class App extends React.Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      "loggedIn": cookie.load('username') ? true : false,  // User logged in status should be determined by cookie
-      "username": cookie.load('username'),
-      "userFunds" : cookie.load('userFunds') ? cookie.load('userFunds') : 50000,
-      "userEmail": cookie.load('userEmail')
+  // constructor(props) {
+  //   super(props);
+  //   this.state = {
+  //     "loggedIn": cookie.load('username') ? true : false,  // User logged in status should be determined by cookie
+  //     "username": cookie.load('username'),
+  //     "userFunds" : cookie.load('userFunds') ? cookie.load('userFunds') : 50000,
+  //     "userEmail": cookie.load('userEmail')
+  //   }
+  // }
+
+  // /**
+  //  * adjustState
+  //  * A function called by components in order to lift state back up to application level. Any attribute and value can be supplied.
+  //  */
+  // adjustState = (state) => {
+  //   this.setState(state)
+  // }
+
+  componentDidMount() {
+    //Check if cookie exists. If it does, update redux state
+    if (cookie.load('userEmail')) {
+      this.props.userUpdateLoginStatus();
+      this.props.userUpdateBasicInformation({
+        username: cookie.load('username'),
+        email: cookie.load('userEmail')
+      })
+      this.setState(this.props);
     }
   }
 
-  componentDidMount() {
-    //Check cookies for user logged in
-  }
-
-  /**
-   * adjustState
-   * A function called by components in order to lift state back up to application level. Any attribute and value can be supplied.
-   */
-  adjustState = (state) => {
-    this.setState(state)
-  }
-
   render() {
-    console.log(this.state);
+    console.log("From App.js");
+    console.log(this.props);
     return (
       <Router>
-        <Navigation loggedIn={this.state.loggedIn} action={this.adjustState} appState={this.state} />
+        <Navigation loggedIn={this.props.user.loginStatus} />
         <div className="body">
           <Switch>
             <Route exact path="/">
@@ -56,20 +68,20 @@ class App extends React.Component {
               </div>
             </Route>
             <Route path="/sign-in">
-              <SignIn action={this.adjustState} appState={this.state} />
+              <SignIn />
             </Route>
             <Route path="/register">
-              <Register action={this.adjustState} appState={this.state} />
+              <Register />
             </Route>
             <Route path="/portfolio">
-              <Portfolio action={this.adjustState} appState={this.state} />
+              <Portfolio />
             </Route>
             <Route path="/transactions">
-              <Transactions action={this.adjustState} appState={this.state} />
+              <Transactions />
             </Route>
           </Switch>
         </div>
-      </Router>
+      </Router >
     )
   }
 }
@@ -83,15 +95,7 @@ class Navigation extends Page {
           <li><Link to="/portfolio">Portfolio</Link></li>
           <li><Link to="/transactions">Transactions</Link></li>
         </ul>
-        <div className="user-logged-in">
-          <span>Welcome, {this.props.appState.username}!</span>
-          <button onClick={() => {
-            this.adjustAppState({
-              loggedIn: false
-            });
-            cookie.remove('username');
-          }}>Log out</button>
-        </div>
+        <NavigationLogin />
       </div>)
     } else {
       return (<div className="nav">
@@ -105,4 +109,11 @@ class Navigation extends Page {
   }
 }
 
-export default App;
+const mapStateToProps = state => {
+  return state;
+}
+
+export default connect(mapStateToProps, {
+  userUpdateBasicInformation, userUpdateLoginStatus
+})
+  (App);

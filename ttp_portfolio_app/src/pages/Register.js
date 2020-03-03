@@ -1,51 +1,11 @@
 import React from 'react';
 import Form from './../component/Form';
-import Info from './../info/info';
-import Page from './Page';
+import LoginMethod from './LoginMethod';
 import {Redirect} from "react-router-dom";
-import cookie from 'react-cookies'
+import { connect } from "react-redux";
+import { userUpdateBasicInformation, userUpdateLoginStatus } from './../redux/actions';
 
-
-//Given allotted time, we should merge Register & Sign-in to a parent class, function is almost identical
-class Register extends Page {
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            loggedIn: cookie.load('username') ? true : false,
-            username: cookie.load('username')
-        }
-    }
-
-    submitAction = (info) => {
-        //Send to backend to check if valid new user
-        fetch(Info.backEndUrl + "/register", {
-            method: "POST",
-            body: JSON.stringify(info),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then(async (res) => { //On success, adjust this state and application state so that we refresh and display new information.
-            let json = await res.json();
-            if (json.success) {
-                this.adjustAppState({
-                    loggedIn: true,
-                    username: json.username,
-                    email: json.email
-                });
-                this.setState({
-                    loggedIn: true
-                })
-                cookie.save("username", json.username);
-                cookie.save("userEmail", json.email);
-            } else {
-                alert("E-mail address already in use. Try again!");
-            }
-        }).catch((err) => {
-            console.log(err);
-        })
-    }
-
+class Register extends LoginMethod {
     render() {
         if (this.state.loggedIn) {
             return <Redirect to="/" />
@@ -70,4 +30,13 @@ class Register extends Page {
     }
 }
 
-export default Register;
+const mapStateToProps = state => {
+    return state.user;
+}
+
+export default connect (
+    mapStateToProps,
+    { userUpdateBasicInformation,
+        userUpdateLoginStatus
+     }
+)(Register);
