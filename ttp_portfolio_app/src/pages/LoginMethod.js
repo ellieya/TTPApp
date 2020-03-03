@@ -1,5 +1,4 @@
 import React from 'react';
-import Page from './Page';
 import cookie from 'react-cookies'
 import Info from './../info/info';
 

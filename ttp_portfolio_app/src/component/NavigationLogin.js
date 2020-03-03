@@ -5,8 +5,6 @@ import { userUpdateLoginStatus, userUpdateLogout} from './../redux/actions';
 
 class NavigationLogin extends React.Component {
     render() {
-        console.log("Calling from Navigation Login");
-        console.log(this.props);
         return (<div className="user-logged-in">
             <span>Welcome, {this.props.username}!</span>
             <button onClick={() => {

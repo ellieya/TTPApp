@@ -29,7 +29,7 @@ const userUpdateReducer = (state = initialState, action) => {
         case "USER_UPDATE_TRANSACTIONS":
             return {
                 ...state,
-                portfolio: action.payload
+                transactions: action.payload
             }
         default:
             return state;

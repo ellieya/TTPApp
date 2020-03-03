@@ -4,131 +4,112 @@ import SignIn from './SignIn';
 import Form from './../component/Form';
 import Info from './../info/info';
 import StockResult from './../component/StockResult';
+import { connect } from "react-redux";
+import { userUpdateBalance, userUpdatePortfolio } from './../redux/actions';
 
 class Portfolio extends Page {
 
     constructor(props) {
         super(props);
+        this.loadingFlag = true; //Flag to prevent refreshData from running multiple times
+        this.portfolioTotalValue = 0;
         this.state = {
-            loading: true,
-            searchResults: []
-        };
+            loading: true
+        }
     }
 
     async componentDidMount() {
-        //Get all stocks owned from backend
-        let flags = []; //Makeshift method of checking since we're running out of time
-        this.totalPortfolioValue = 0;
+        await this.refreshData();
+    }
 
-        console.log(this.props.appState.userEmail);
-        await fetch(Info.backEndUrl + "/getAllStock", {
-            method: "POST",
-            body: JSON.stringify({
-                user: this.props.appState.userEmail
-            }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
+    adjustPortfolioState = () => {
+        this.loadingFlag = true;
+        this.setState({
+            loading: true
         })
-            .then(async (res) => {
-                let json = await res.json();
-                console.log(json);
-                this.ownedStockList = json;
-                flags.push(true);
+    }
+
+    async refreshData() {
+        if (this.loadingFlag && this.props.user.info) {
+            this.loadingFlag = false;
+
+            let dataReceived = [];
+            /**
+             * 0 - cash balance
+             * 1 - stocks owned
+             */
+
+            //Get cash balance from backend
+            await fetch(Info.backEndUrl + "/getCash", {
+                method: "POST",
+                body: JSON.stringify({
+                    user: this.props.user.info.email
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             })
-
-        // //For each ownedStockList, we now want to get the price.
-        // this.ownedStockListPrices = [];
-        // this.ownedStockList.forEach( async (element) => {
-        //     await fetch(Info.IEXUrl + "/stock/" + element.stock + "/quote?" + Info.IEXAPIKeyUrlParam)
-        //         .then(async (res) => {
-        //             let json = await res.json();
-        //             let stockPrice = Number.parseFloat(json.latestPrice).toFixed(2);
-        //             this.totalPortfolioValue += stockPrice;
-        //             this.ownedStockListPrices.push(stockPrice);
-        //             flags.push(true);
-        //         })
-        // })
-        // console.log("Owned stock prices");
-        // console.log(this.ownedStockListPrices);
-
-
-        //Get cash balance from backend
-        await fetch(Info.backEndUrl + "/getCash", {
-            method: "POST",
-            body: JSON.stringify({
-                user: this.props.appState.userEmail
-            }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(async (res) => {
-                let json = await res.json();
-                console.log("User funds:" + json)
-                this.props.action({
-                    userFunds: json
+                .then(async (res) => {
+                    let json = await res.json();
+                    dataReceived.push(json);
                 })
-                flags.push(true);
-            })
 
-        if (flags.length == 2) {
+            //Get all stocks owned from backend
+            await fetch(Info.backEndUrl + "/getAllStock", {
+                method: "POST",
+                body: JSON.stringify({
+                    user: this.props.user.info.email
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(async (res) => {
+                    let json = await res.json();
+                    json.forEach(async (element) => { //Calculate equity of each stock based on price of stock
+                        element["pricePerStock"] = await fetch(Info.IEXUrl + "/stock/" + element["stock"] + "/quote?" + Info.IEXAPIKeyUrlParam)
+                            .then(async (res) => {
+                                let json = await res.json();
+                                return Number.parseFloat(json.latestPrice).toFixed(2);
+                            })
+                        element["totalEquity"] = element["pricePerStock"] * element["qty"];
+                        this.portfolioTotalValue += element["totalEquity"]; 
+                    })
+                    dataReceived.push(json);
+                })
+
+
+            //Update redux store
+            this.props.userUpdateBalance(dataReceived[0]);
+            this.props.userUpdatePortfolio(dataReceived[1]);
+
+            //Fix loading state
             this.setState({
                 loading: false
             })
         }
+
     }
 
-    async componentDidUpdate() {
-        if (this.state.loading) {
-            // this.componentDidMount();
-        }
-    }
-
-    getOwnedStocks = () => {
-
+    
+    createOwnedStocksRows = () => {
+        console.log("Create owned running");
         let stockList = [];
-
-        //Run only when load is finished
-        if (!this.state.loading) {
-            let i = 0; //I'm so sorry I know this is terrible practice
-            this.ownedStockList.forEach((element) => {
-                stockList.push(
-                    <tbody>
-                        <tr>
-                            <td>{element.stock}</td>
-                            <td>{element.qty}</td>
-                            {/* <td>{this.ownedStockListPrices[i]}</td> */}
-                            {/* <td>{ Number.parseFloat(this.ownedStockListPrices[i]) * Number.parseInt(element.qty)}</td> */}
-                        </tr>
-                    </tbody>
-                )
-                i++;
-            })
-        }
-
+        this.props.user.portfolio.forEach((element) => {
+            stockList.push(
+                <tbody>
+                    <tr>
+                        <td>{element.stock}</td>
+                        <td>{element.qty}</td>
+                        <td>{element.pricePerStock}</td>
+                        <td>{element.totalEquity}</td>
+                        {/* <td>{this.ownedStockListPrices[i]}</td> */}
+                        {/* <td>{ Number.parseFloat(this.ownedStockListPrices[i]) * Number.parseInt(element.qty)}</td> */}
+                    </tr>
+                </tbody>
+            )
+        })
         return stockList;
-    }
-
-    submitAction = async (info) => {
-        //Check that info AND ticker has value before firing
-        if (info && info.Ticker) {
-            console.log(Info.AVAPIUrl + "/query?function=SYMBOL_SEARCH&keywords=" + info.Ticker + Info.AVAPIKeyUrlParam);
-            await fetch(Info.AVAPIUrl + "/query?function=SYMBOL_SEARCH&keywords=" + info.Ticker + Info.AVAPIKeyUrlParam)
-                .then(async (res) => {
-                    let searchResults = await res.json();
-                    this.setState({
-                        "searchResults": searchResults.bestMatches
-                    })
-                })
-        }
-        console.log(info);
-    }
-
-    adjustPortfolioState = (state) => {
-        this.setState(
-            state
-        )
     }
 
     createSearchResultsList = () => {
@@ -148,22 +129,42 @@ class Portfolio extends Page {
         return results;
     }
 
+    submitAction = async (info) => {
+        //Check that info AND ticker has value before firing
+        if (info && info.Ticker) {
+            console.log(Info.AVAPIUrl + "/query?function=SYMBOL_SEARCH&keywords=" + info.Ticker + Info.AVAPIKeyUrlParam);
+            await fetch(Info.AVAPIUrl + "/query?function=SYMBOL_SEARCH&keywords=" + info.Ticker + Info.AVAPIKeyUrlParam)
+                .then(async (res) => {
+                    let searchResults = await res.json();
+                    this.setState({
+                        "searchResults": searchResults.bestMatches
+                    })
+                })
+        }
+        console.log(info);
+    }
+
     render() {
-        console.log(this.state);
-        if (this.props.appState.loggedIn) {
+        console.log("Portfolio");
+        console.log(this.props);
+        if (this.loadingFlag) {
+            this.refreshData();
+        }
+        if (this.props.user.loginStatus) {
             return (
                 <div className="portfolio">
                     <div className="portfolio-side">
-                        <h1>Portfolio ($totalvalue)</h1>
+                        <h1>Portfolio (${this.portfolioTotalValue})</h1>
                         <table border="1">
                             <thead>
                                 <tr>
                                     <th>Stock</th>
                                     <th>Qty</th>
+                                    <th>Price</th>
                                     <th>Total Value</th>
                                 </tr>
                             </thead>
-                            {this.getOwnedStocks()}
+                            {this.props.user.portfolio ? this.createOwnedStocksRows() : ""}
                         </table>
                     </div>
                     <div className="transaction-side">
@@ -178,15 +179,15 @@ class Portfolio extends Page {
                             action={this.submitAction}
                             submitText="Search"
                         />
-                        <h3>Cash value: ${this.props.appState.userFunds.toLocaleString('en-US')}</h3>
+                        <h3>Cash value: ${this.props.user.balance ? this.props.user.balance.toLocaleString('en-US') : "LOADING"}</h3>
                         <div className="list">
-                            {this.createSearchResultsList()}
+                            {this.state.searchResults ? this.createSearchResultsList() : ""}
                         </div>
                     </div>
                 </div>
             )
         } else {
-            return (
+            return ( //TODO: If bug persists, redirect to SignUp
                 <SignIn redirect="/portfolio" />
             )
         }
@@ -194,4 +195,12 @@ class Portfolio extends Page {
     }
 }
 
-export default Portfolio;
+const mapStateToProps = state => {
+    return state;
+}
+
+export default connect(mapStateToProps, {
+    userUpdateBalance,
+    userUpdatePortfolio
+})
+    (Portfolio);

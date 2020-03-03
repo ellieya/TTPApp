@@ -12,12 +12,6 @@ import NavigationLogin from './component/NavigationLogin';
 import { connect } from "react-redux";
 import { userUpdateBasicInformation, userUpdateLoginStatus } from './redux/actions';
 
-/**
- * Hi TTP!
- * Some of the code is a bit sloppy and unsecure since I ran out of time. I apologize in advance.
- * -Ellie
- */
-
 class App extends React.Component {
 
   // constructor(props) {
@@ -51,8 +45,6 @@ class App extends React.Component {
   }
 
   render() {
-    console.log("From App.js");
-    console.log(this.props);
     return (
       <Router>
         <Navigation loggedIn={this.props.user.loginStatus} />

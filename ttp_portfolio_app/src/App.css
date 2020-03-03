@@ -103,17 +103,17 @@ body, .body {
   font-size: 20px;
 }
 
-.portfolio table {
+.portfolio table, .transactions table {
   min-width: 70%;
   border-collapse: collapse;
 }
 
-.portfolio th, td {
+.portfolio th, .portfolio td, .transactions th, .transactions td {
   padding: 5px;
   text-align: center;
 }
 
-.portfolio th {
+.portfolio th, .transactions th {
   background-color: lavender;
 }
 
