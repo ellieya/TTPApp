@@ -12,7 +12,8 @@ stock VARCHAR(10) NOT NULL,
 pricePerStock DECIMAL(15,2) NOT NULL,
 qty INT NOT NULL,
 totalCost DECIMAL(15,2) NOT NULL,
-`type` VARCHAR(4) NOT NULL
+`type` VARCHAR(4) NOT NULL,
+`timestamp` DATETIME NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE Ownership(

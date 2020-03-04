@@ -1,0 +1,6 @@
+MySQL
+React
+Redux
+Express
+NGNIX
+Linux Ubuntu 16.04
