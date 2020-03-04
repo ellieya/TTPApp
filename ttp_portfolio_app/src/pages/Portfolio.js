@@ -67,6 +67,7 @@ class Portfolio extends Page {
                 .then(async (res) => {
                     let json = await res.json();
                     json.forEach(async (element) => { //Calculate equity of each stock based on price of stock
+                        console.log(Info.IEXUrl + "/stock/" + element["stock"] + "/quote?" + Info.IEXAPIKeyUrlParam);
                         element["pricePerStock"] = await fetch(Info.IEXUrl + "/stock/" + element["stock"] + "/quote?" + Info.IEXAPIKeyUrlParam)
                             .then(async (res) => {
                                 let json = await res.json();
@@ -154,7 +155,12 @@ class Portfolio extends Page {
             return (
                 <div className="portfolio">
                     <div className="portfolio-side">
-                        <h1>Portfolio (${this.portfolioTotalValue})</h1>
+                        <h1>Portfolio (${Number.parseFloat(this.portfolioTotalValue).toFixed(2)})</h1>
+                        <button onClick={
+                            () => {
+                                this.forceUpdate()
+                            }
+                        }>Get Current Prices</button>
                         <table border="1">
                             <thead>
                                 <tr>
